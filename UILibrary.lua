@@ -1,250 +1,146 @@
-local Warrior = {
-    Tabs = {}
-}
-
+local UILibrary = {}
 local UserInputService = game:GetService("UserInputService")
 
-local WarriorGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Tab = Instance.new("Frame")
-local TextLabel = Instance.new("TextLabel")
-local Elements = Instance.new("ScrollingFrame")
-local UIListLayout = Instance.new("UIListLayout")
-local Tabs = Instance.new("ScrollingFrame")
-local UIListLayout_2 = Instance.new("UIListLayout")
+function UILibrary:MakeDraggable(gui)
+    local dragging
+    local dragInput
+    local dragStart
+    local startPos
 
-WarriorGui.Name = "Warrior"
-WarriorGui.Parent = gethui() or game:GetService("CoreGui")
+    local function update(input)
+        local delta = input.Position - dragStart
+        gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 
-Frame.Parent = WarriorGui
-Frame.BackgroundColor3 = Color3.fromRGB(48, 48, 48)
-Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(0.307, 0, 0.188, 0)
-Frame.Size = UDim2.new(0, 500, 0, 400)
-
-Tab.Parent = Frame
-Tab.BackgroundColor3 = Color3.fromRGB(27, 255, 15)
-Tab.Size = UDim2.new(0, 500, 0, 30)
-
-TextLabel.Parent = Tab
-TextLabel.BackgroundTransparency = 1
-TextLabel.Size = UDim2.new(0, 71, 0, 30)
-TextLabel.Font = Enum.Font.Gotham
-TextLabel.Text = "Warrior"
-TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-TextLabel.TextSize = 20
-
-Elements.Name = "Elements"
-Elements.Parent = Frame
-Elements.Active = true
-Elements.BackgroundTransparency = 1
-Elements.Position = UDim2.new(0.274, 0, 0.073, 0)
-Elements.Size = UDim2.new(0, 362, 0, 370)
-
-UIListLayout.Parent = Elements
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
-Tabs.Name = "Tabs"
-Tabs.Parent = Frame
-Tabs.Active = true
-Tabs.BackgroundTransparency = 1
-Tabs.Position = UDim2.new(0, 0, 0.073, 0)
-Tabs.Size = UDim2.new(0, 139, 0, 370)
-
-UIListLayout_2.Parent = Tabs
-UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-
-function Warrior:NewToggle(name, default, callback)
-    local ToggleUI = Instance.new("Frame")
-    ToggleUI.BackgroundColor3 = Color3.fromRGB(21, 21, 21)
-    ToggleUI.Size = UDim2.new(0, 243, 0, 38)
-    
-    local TextLabel_Toggle = Instance.new("TextLabel")
-    TextLabel_Toggle.Parent = ToggleUI
-    TextLabel_Toggle.BackgroundTransparency = 1
-    TextLabel_Toggle.Size = UDim2.new(0, 139, 0, 32)
-    TextLabel_Toggle.Font = Enum.Font.Gotham
-    TextLabel_Toggle.Text = name
-    TextLabel_Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TextLabel_Toggle.TextScaled = true
-    
-    local TextButton_Toggle = Instance.new("TextButton")
-    TextButton_Toggle.Parent = ToggleUI
-    TextButton_Toggle.BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-    TextButton_Toggle.Position = UDim2.new(0.768, 0, 0.210, 0)
-    TextButton_Toggle.Size = UDim2.new(0, 47, 0, 21)
-    
-    local Frame_Toggle = Instance.new("Frame")
-    Frame_Toggle.Parent = TextButton_Toggle
-    Frame_Toggle.BackgroundColor3 = default and Color3.fromRGB(85, 255, 127) or Color3.fromRGB(255, 6, 31)
-    Frame_Toggle.Size = UDim2.new(0, 28, 0, 21)
-
-    ToggleUI.Parent = Elements
-    
-    local currentValue = default
-    callback(currentValue)
-
-    TextButton_Toggle.MouseButton1Click:Connect(function()
-        currentValue = not currentValue
-        Frame_Toggle.BackgroundColor3 = currentValue and Color3.fromRGB(85, 255, 127) or Color3.fromRGB(255, 6, 31)
-        callback(currentValue)
-    end)
-end
-
-function Warrior:NewDropdown(name, options, default, callback)
-    local DropdownUI = Instance.new("Frame")
-    DropdownUI.BackgroundColor3 = Color3.fromRGB(21, 21, 21)
-    DropdownUI.Size = UDim2.new(0, 324, 0, 47)
-
-    local TextLabel_Dropdown = Instance.new("TextLabel")
-    TextLabel_Dropdown.Parent = DropdownUI
-    TextLabel_Dropdown.BackgroundTransparency = 1
-    TextLabel_Dropdown.Size = UDim2.new(0, 139, 0, 38)
-    TextLabel_Dropdown.Font = Enum.Font.Gotham
-    TextLabel_Dropdown.Text = name
-    TextLabel_Dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TextLabel_Dropdown.TextScaled = true
-
-    local TextButton_Dropdown = Instance.new("TextButton")
-    TextButton_Dropdown.Parent = DropdownUI
-    TextButton_Dropdown.BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-    TextButton_Dropdown.Position = UDim2.new(0.549, 0, 0.157, 0)
-    TextButton_Dropdown.Size = UDim2.new(0, 129, 0, 26)
-    TextButton_Dropdown.Text = default
-
-    DropdownUI.Parent = Elements
-
-    local currentIndex = table.find(options, default) or 1
-    callback(options[currentIndex])
-
-    TextButton_Dropdown.MouseButton1Click:Connect(function()
-        currentIndex = currentIndex % #options + 1
-        TextButton_Dropdown.Text = options[currentIndex]
-        callback(options[currentIndex])
-    end)
-end
-
-function Warrior:NewSlider(name, min, max, default, callback)
-    local SliderUI = Instance.new("Frame")
-    SliderUI.BackgroundColor3 = Color3.fromRGB(21, 21, 21)
-    SliderUI.Size = UDim2.new(0, 324, 0, 38)
-
-    local TextLabel_Slider = Instance.new("TextLabel")
-    TextLabel_Slider.Parent = SliderUI
-    TextLabel_Slider.BackgroundTransparency = 1
-    TextLabel_Slider.Size = UDim2.new(0, 153, 0, 38)
-    TextLabel_Slider.Font = Enum.Font.Gotham
-    TextLabel_Slider.Text = name
-    TextLabel_Slider.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TextLabel_Slider.TextScaled = true
-
-    local Frame_Slider = Instance.new("Frame")
-    Frame_Slider.Parent = SliderUI
-    Frame_Slider.BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-    Frame_Slider.Position = UDim2.new(0.515, 0, 0.210, 0)
-    Frame_Slider.Size = UDim2.new(0, 138, 0, 21)
-
-    local Frame_SliderIndicator = Instance.new("Frame")
-    Frame_SliderIndicator.Parent = Frame_Slider
-    Frame_SliderIndicator.BackgroundColor3 = Color3.fromRGB(85, 255, 127)
-    Frame_SliderIndicator.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-
-    SliderUI.Parent = Elements
-
-    callback(default)
-
-    local dragging = false
-
-    Frame_Slider.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
+            dragStart = input.Position
+            startPos = gui.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    gui.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
         end
     end)
 
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local percentage = math.clamp((input.Position.X - Frame_Slider.AbsolutePosition.X) / Frame_Slider.AbsoluteSize.X, 0, 1)
-            local value = math.floor(min + (max - min) * percentage)
-            Frame_SliderIndicator.Size = UDim2.new(percentage, 0, 1, 0)
-            callback(value)
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
+        if input == dragInput and dragging then
+            update(input)
         end
     end)
 end
 
-function Warrior:NewTab(name)
-    local tab = {}
+function UILibrary:CreateWindow(title)
+    local Main = Instance.new("Frame")
+    Main.Name = "Main"
+    Main.BackgroundColor3 = Color3.fromRGB(48, 48, 48)
+    Main.BorderSizePixel = 0
+    Main.Size = UDim2.new(0, 500, 0, 400)
 
-    tab.Button = Instance.new("TextButton")
-    tab.Button.Parent = Tabs
-    tab.Button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    tab.Button.BackgroundTransparency = 1
-    tab.Button.Size = UDim2.new(0, 108, 0, 32)
-    tab.Button.Font = Enum.Font.Gotham
-    tab.Button.Text = name
-    tab.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tab.Button.TextScaled = true
+    local UICorner = Instance.new("UICorner", Main)
+    UICorner.CornerRadius = UDim.new(0, 4)
 
-    tab.Elements = {}
+    local TopBar = Instance.new("Frame", Main)
+    TopBar.BackgroundColor3 = Color3.fromRGB(189, 142, 255)
+    TopBar.Size = UDim2.new(1, 0, 0, 25)
 
-    tab.Button.MouseButton1Click:Connect(function()
-        for index, value in Elements:GetChildren() do
-            if value:IsA("UIListLayout") then continue end
-            value.Parent = nil
-        end
-        
-        for index, value in tab.Elements do
-            value.Parent = Elements
-        end
+    local UICorner_2 = Instance.new("UICorner", TopBar)
+    UICorner_2.CornerRadius = UDim.new(0, 4)
+
+    local TextLabel = Instance.new("TextLabel", TopBar)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Size = UDim2.new(1, -16, 1, 0)
+    TextLabel.Position = UDim2.new(0.02, 0, 0, 0)
+    TextLabel.Text = title
+    TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TextLabel.Font = Enum.Font.GothamBold
+    TextLabel.TextSize = 14
+
+    local Tabs = Instance.new("ScrollingFrame", Main)
+    Tabs.BackgroundTransparency = 1
+    Tabs.Size = UDim2.new(0, 123, 1, -25)
+    Tabs.Position = UDim2.new(0, 0, 0, 25)
+    Tabs.CanvasSize = UDim2.new(0, 0, 5, 0)
+
+    local UIListLayout = Instance.new("UIListLayout", Tabs)
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local Elements = Instance.new("ScrollingFrame", Main)
+    Elements.BackgroundTransparency = 1
+    Elements.Size = UDim2.new(0.75, 0, 1, -25)
+    Elements.Position = UDim2.new(0.25, 0, 0, 25)
+    Elements.CanvasSize = UDim2.new(0, 0, 5, 0)
+
+    local UIListLayout_2 = Instance.new("UIListLayout", Elements)
+    UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local Objects = Instance.new("Folder", Main)
+
+    self:MakeDraggable(Main)
+
+    return {Main = Main, Tabs = Tabs, Elements = Elements, Objects = Objects}
+end
+
+function UILibrary:AddTab(window, tabName)
+    local TabButton = Instance.new("TextButton", window.Tabs)
+    TabButton.BackgroundTransparency = 1
+    TabButton.Size = UDim2.new(1, -8, 0, 32)
+    TabButton.Text = tabName
+    TabButton.Font = Enum.Font.GothamBold
+    TabButton.TextSize = 14
+    TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    return TabButton
+end
+
+function UILibrary:AddToggle(tab, toggleName, callback)
+    local ToggleOn = Instance.new("TextButton", tab)
+    ToggleOn.BackgroundTransparency = 1
+    ToggleOn.Size = UDim2.new(1, -8, 0, 50)
+    ToggleOn.Text = ""
+    ToggleOn.TextXAlignment = Enum.TextXAlignment.Left
+    ToggleOn.Font = Enum.Font.GothamBold
+    ToggleOn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    
+    local Title = Instance.new("TextLabel", ToggleOn)
+    Title.BackgroundTransparency = 1
+    Title.Size = UDim2.new(0.8, 0, 1, 0)
+    Title.Text = toggleName
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 14
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local ToggleContainer = Instance.new("TextButton", ToggleOn)
+    ToggleContainer.BackgroundTransparency = 1
+    ToggleContainer.Size = UDim2.new(0, 40, 0, 40)
+    ToggleContainer.Position = UDim2.new(0.8, 0, 0, 0)
+    
+    local Pinhead = Instance.new("ImageLabel", ToggleContainer)
+    Pinhead.AnchorPoint = Vector2.new(0.5, 0.5)
+    Pinhead.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Pinhead.Size = UDim2.new(0, 14, 0, 14)
+    Pinhead.Image = "rbxassetid://3570695787"
+    
+    local isOn = false
+    
+    ToggleContainer.MouseButton1Click:Connect(function()
+        isOn = not isOn
+        Pinhead.ImageColor3 = isOn and Color3.fromRGB(70, 119, 255) or Color3.fromRGB(115, 115, 115)
+        if callback then callback(isOn) end
     end)
-
-    Warrior.Tabs[name] = tab
-    return tab
+    
+    return ToggleOn
 end
 
-do
-	local gui = WarriorGui.Frame
-
-	local dragging
-	local dragInput
-	local dragStart
-	local startPos
-
-	local function update(input)
-		local delta = input.Position - dragStart
-		gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-
-	gui.Frame.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = gui.Position
-
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-
-	gui.Frame.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			dragInput = input
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			update(input)
-		end
-	end)
-end
-
-return Warrior
+return UILibrary
